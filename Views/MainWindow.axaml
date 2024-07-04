@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaApplication2.ViewModels"
+        xmlns:models="using:AvaloniaApplication2.Models"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="AvaloniaApplication2.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="ToDoListApp">
+
+	<Window.Resources>
+		<models:NullToBoolConverter x:Key="NullToBoolConverter" />
+		<models:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+	</Window.Resources>
+
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="2*" />
+		</Grid.ColumnDefinitions>
+
+		<!-- Left Side: Text Box and Buttons -->
+		<StackPanel Grid.Column="0" Margin="10">
+			<TextBox x:Name="NewNoteTitleTextBox" Text="{Binding NewNoteTitle, Mode=TwoWay}" Watermark="New note..." AcceptsReturn="True" TextWrapping="Wrap" Height="100"/>
+			<StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+				<Button Content="Add Note" Command="{Binding AddNoteCommand}" />
+				<Button Content="Delete Note" Command="{Binding DeleteNoteCommand}" Margin="5,0,0,0" />
+			</StackPanel>
+		</StackPanel>
+
+		<!-- Right Side: List of Notes -->
+		<StackPanel Grid.Column="1" Margin="10">
+			<ListBox ItemsSource="{Binding Notes}" SelectedItem="{Binding SelectedNote}">
+				<ListBox.ItemTemplate>
+					<DataTemplate x:DataType="models:Note">
+						<TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+				<ListBox.Styles>
+					<Style Selector="ListBoxItem:selected">
+						<Setter Property="Background" Value="Blue"/>
+						<Setter Property="Foreground" Value="White"/>
+					</Style>
+					<Style Selector="ListBoxItem">
+						<Setter Property="Background" Value="Transparent"/>
+						<Setter Property="Foreground" Value="White"/>
+					</Style>
+				</ListBox.Styles>
+			</ListBox>
+		</StackPanel>
+	</Grid>
+
+</Window>
