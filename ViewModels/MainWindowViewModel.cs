@@ -3,6 +3,8 @@ using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace AvaloniaApplication2.ViewModels
 {
@@ -35,17 +37,18 @@ namespace AvaloniaApplication2.ViewModels
         public ReactiveCommand<Unit, Unit> AddNoteCommand { get; }
         public ReactiveCommand<Unit, Unit> DeleteNoteCommand { get; }
 
+        private readonly string saveFilePath = "notes.json";  // Path to save the notes
+
         public MainWindowViewModel()
         {
+            // Load notes from file when the application starts
+            LoadNotes();
+
             AddNoteCommand = ReactiveCommand.Create(AddNote);
             DeleteNoteCommand = ReactiveCommand.Create(DeleteNote);
 
-            // Uncomment these lines for testing with default notes
-            //Notes.Add(new Note { Title = "Sample Note 1", Content = "This is the content of the first sample note.", DateCreated = DateTime.Now, DateModified = DateTime.Now });
-            //Notes.Add(new Note { Title = "Sample Note 2", Content = "This is the content of the second sample note.", DateCreated = DateTime.Now, DateModified = DateTime.Now });
-            //Notes.Add(new Note { Title = "Sample Note 3", Content = "This is the content of the third sample note.", DateCreated = DateTime.Now, DateModified = DateTime.Now });
-
-            //SelectedNote = Notes[0];
+            // Save the notes whenever the collection changes
+            Notes.CollectionChanged += (s, e) => SaveNotes();
         }
 
         private void AddNote()
@@ -63,6 +66,9 @@ namespace AvaloniaApplication2.ViewModels
             // Clear the input fields
             NewNoteTitle = string.Empty;
             NewNoteContent = string.Empty;
+
+            // Save notes after adding
+            SaveNotes();
         }
 
         private void DeleteNote()
@@ -71,6 +77,35 @@ namespace AvaloniaApplication2.ViewModels
             {
                 Notes.Remove(SelectedNote);
                 SelectedNote = null;
+
+                // Save notes after deleting
+                SaveNotes();
+            }
+        }
+
+        // Change the method visibility to public to make them accessible
+        public void SaveNotes()
+        {
+            var notesList = new List<Note>(Notes);
+            var json = JsonConvert.SerializeObject(notesList, Newtonsoft.Json.Formatting.Indented);
+            System.IO.File.WriteAllText(saveFilePath, json);
+        }
+
+        public void LoadNotes()
+        {
+            if (System.IO.File.Exists(saveFilePath))
+            {
+                var json = System.IO.File.ReadAllText(saveFilePath);
+                var notesList = JsonConvert.DeserializeObject<List<Note>>(json);
+
+                if (notesList != null)
+                {
+                    Notes.Clear();
+                    foreach (var note in notesList)
+                    {
+                        Notes.Add(note);
+                    }
+                }
             }
         }
     }

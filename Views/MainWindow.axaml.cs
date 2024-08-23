@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Interactivity;
 
 namespace AvaloniaApplication2.Views
 {
@@ -12,9 +13,20 @@ namespace AvaloniaApplication2.Views
             DataContext = new ViewModels.MainWindowViewModel();
         }
 
-        private void InitializeComponent()
+        private void OnSaveButtonClick(object sender, RoutedEventArgs e)
         {
-            AvaloniaXamlLoader.Load(this);
+            if (DataContext is ViewModels.MainWindowViewModel viewModel)
+            {
+                viewModel.SaveNotes();
+            }
+        }
+
+        private void OnLoadButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is ViewModels.MainWindowViewModel viewModel)
+            {
+                viewModel.LoadNotes();
+            }
         }
     }
 }
